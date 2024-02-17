@@ -1,20 +1,33 @@
-# Usando a imagem do Java 17
+# Etapa de build
+# Use a imagem do JDK 17 para compilar o projeto
+FROM maven:3.8.4-openjdk-17 as build
+
+# Copia os arquivos do projeto para o diretório de trabalho no contêiner
+COPY src /home/app/src
+COPY pom.xml /home/app
+
+# Define o diretório de trabalho para o diretório onde os arquivos foram copiados
+WORKDIR /home/app
+
+# Executa o Maven para construir o aplicativo (empacota o JAR)
+RUN mvn -f /home/app/pom.xml clean package
+
+# Etapa de execução
+# Use a imagem do JRE 17 para rodar o aplicativo
 FROM openjdk:17-oracle
 
-# Criando um volume para armazenar temporariamente os arquivos
+# Cria um volume para armazenar temporariamente os arquivos
 VOLUME /tmp
 
-# Permite a passagem de opções de JVM via argumento na construção do Docker
+# Passagem de opções de JVM via argumento na construção do Docker
 ARG JAVA_OPTS
 ENV JAVA_OPTS=$JAVA_OPTS
 
-# Copia o jar da aplicação para a imagem Docker
-COPY target/simplebankapi-0.0.1-SNAPSHOT.jar simplebankapi.jar
+# Copia o JAR construído na etapa de build para a imagem de execução
+COPY --from=build /home/app/target/simplebankapi-0.0.1-SNAPSHOT.jar /usr/local/lib/simplebankapi.jar
 
-# Expõe a porta 8080 para acessar a aplicação
+# Expõe a porta 8080
 EXPOSE 8080
 
 # Define o comando para iniciar a aplicação
-ENTRYPOINT exec java $JAVA_OPTS -jar simplebankapi.jar
-# Para projetos Spring Boot, use o entrypoint abaixo para reduzir o tempo de inicialização do Tomcat
-# ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar simplebankapi.jar
+ENTRYPOINT exec java $JAVA_OPTS -jar /usr/local/lib/simplebankapi.jar
