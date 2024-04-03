@@ -2,6 +2,7 @@ package com.simplebank.simplebankapi.model;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -14,7 +15,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "transactions")
+@Table(name = "transacoes")
 @Data
 public class Transaction {
 
@@ -23,14 +24,19 @@ public class Transaction {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
+    @JoinColumn(name = "cliente_id", nullable = false)
     private Customer customer;
 
-    private Long value;
+    @Column(name = "valor")
+    private long value;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "tipo")
     private TransactionType type;
+
+    @Column(name = "descricao", length = 10)
     private String description;
 
-    private LocalDateTime performedAt = LocalDateTime.now();
+    @Column(name = "realizada_em")
+    private LocalDateTime performedAt;
 }
