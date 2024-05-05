@@ -45,12 +45,12 @@ public class ClienteController {
     @PostMapping("/{id}/transacoes")
     public ResponseEntity<?> addTransaction(@PathVariable Long id, @RequestBody Transaction transaction) {
         try {
-            Customer customer = clienteService.getCustomerDetails(id);  // Buscar o cliente pelo ID
-            transaction.setCustomer(customer);  // Setamos o cliente obtido do banco de dados
+            Customer customer = clienteService.getCustomerDetails(id);
+            transaction.setCustomer(customer);
             Transaction createdTransaction = clienteService.saveTransaction(transaction);
             return ResponseEntity.ok(createdTransaction);
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build(); // Caso o cliente não seja encontrado
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error processing transaction: " + e.getMessage());
         }
